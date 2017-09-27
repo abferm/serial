@@ -6,6 +6,9 @@ import (
 	"unsafe"
 )
 
+// Missing definition from syscall... Can be found in the kernel headers
+const TCFLSH = 0x540B
+
 var baudRates = map[int]uint32{
 	50:      syscall.B50,
 	75:      syscall.B75,
@@ -78,6 +81,22 @@ func tcgetattr(fd int, termios *syscall.Termios) (err error) {
 	}
 	if r != 0 {
 		err = fmt.Errorf("tcgetattr failed %v", r)
+		return
+	}
+	return
+}
+
+// tcflush clears specified buffer(s)
+// See man tcflush(3)
+func tcflush(fd int, buffer int) (err error) {
+	_, _, errno := syscall.Syscall(
+		syscall.SYS_IOCTL,
+		uintptr(fd),
+		uintptr(TCFLSH),
+		uintptr(buffer),
+	)
+	if errno != 0 {
+		err = errno
 		return
 	}
 	return

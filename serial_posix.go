@@ -96,6 +96,11 @@ func (p *port) Write(b []byte) (n int, err error) {
 	return
 }
 
+func (p *port) Flush() (err error) {
+	err = tcflush(p.fd, syscall.TCIOFLUSH)
+	return
+}
+
 func (p *port) setTermios(termios *syscall.Termios) (err error) {
 	if err = tcsetattr(p.fd, termios); err != nil {
 		err = fmt.Errorf("serial: could not set setting: %v", err)
